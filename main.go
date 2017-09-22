@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/render"
 	"github.com/go-chi/cors"
 	"github.com/pressly/chi"
 	"log"
@@ -31,10 +33,10 @@ func main() {
 	r.Use(corsOption.Handler)
 	r.Use(middleware.Logger)
 	r.Use(render.SetContentType(render.ContentTypeJSON))
-	r.Get("")
+	r.Get("/dummy", createAgreementHandler())
 
-	log.Info("Server started on localhost:8080")
-	log.Fatal(http.ListenAndServeTLS(":8080", r))
+	log.Println("Server started on localhost:8080")
+	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
 func createAgreementHandler() http.HandlerFunc {
