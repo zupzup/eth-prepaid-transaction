@@ -5,7 +5,11 @@
     <body>
         <div>
             <div>
-                Agreement to sign for <b><span id="address"></span></b>:
+                Account: <b><span id="address"></span></b>:
+                <p/>
+                <div>
+                    Balance: <span id="balance"></span>
+                </div>
                 <p/>
                 <div id="agreement">
                 </div>
@@ -14,9 +18,6 @@
                     Signed: <span id="signed"></span>
                 </div>
                 <p/>
-                <div>
-                    Account Balance: <span id="balance"></span>
-                </div>
                 <p/>
                 <div>
                     <button id="signbutton">Sign</button>
@@ -25,5 +26,6 @@
         </div>
     </body>
     <script src="./web3.min.js"></script>
+    <script src="./superagent.min.js"></script>
     <script src="./client.js"></script>
 </html>
