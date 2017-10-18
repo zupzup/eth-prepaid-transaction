@@ -3,12 +3,14 @@ package main
 import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/pressly/chi"
 	"log"
+	"math/big"
 	"net/http"
 )
 
@@ -38,12 +40,26 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create Transactor: %v", err)
 	}
+	fmt.Println(auth.From.String(), auth.Nonce.String())
+	auth.Nonce = big.NewInt(4)
 
 	addr, _, contract, err := DeploySigner(auth, conn)
 	if err != nil {
 		log.Fatalf("Failed to deploy contract: %v", err)
 	}
-	fmt.Println(addr.Hex(), addr.String(), contract)
+	fmt.Println("Contract Deployed to: ", addr.String())
+
+	createTrans, err := contract.CreateAgreement(&bind.TransactOpts{
+		From:     auth.From,
+		Signer:   auth.Signer,
+		GasLimit: big.NewInt(2381623),
+		Value:    big.NewInt(0),
+		Nonce:    big.NewInt(5),
+	}, "test project", common.HexToAddress("446b69e95817842b6c27de11cdcba498b6a35c1c"))
+	if err != nil {
+		log.Fatalf("Failed to create agreement: %v", err)
+	}
+	fmt.Println("Agreement created: ", createTrans.String())
 
 	r := chi.NewRouter()
 	corsOption := cors.New(cors.Options{
