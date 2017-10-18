@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
+	"crypto/ecdsa"
 	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/go-chi/chi/middleware"
@@ -68,14 +71,14 @@ func main() {
 	})
 	r.Use(corsOption.Handler)
 	r.Use(middleware.Logger)
-	r.Post("/agreement", createAgreementHandler(contract, auth, clientAuth))
+	r.Post("/agreement", createAgreementHandler(contract, auth, clientAuth, conn, privKey))
 
 	log.Println("Server started on localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
 	fmt.Println("tada!")
 }
 
-func createAgreementHandler(contract *Signer, auth, clientAuth *bind.TransactOpts) http.HandlerFunc {
+func createAgreementHandler(contract *Signer, auth, clientAuth *bind.TransactOpts, conn *ethclient.Client, privKey *ecdsa.PrivateKey) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		agreement := &Agreement{}
 		if err := render.Bind(r, agreement); err != nil {
@@ -101,7 +104,21 @@ func createAgreementHandler(contract *Signer, auth, clientAuth *bind.TransactOpt
 			log.Fatalf("Failed to create agreement: %v", err)
 		}
 		fmt.Println("Agreement created: ", agreement.Agreement)
-		// TODO: send enough wei to address
+		nonceCounter = nonceCounter + 1
+		gasPrice, err := conn.SuggestGasPrice(context.Background())
+		if err != nil {
+			log.Fatalf("Failed to get gas price: %v", err)
+		}
+		signer := types.HomesteadSigner{}
+		tx := types.NewTransaction(uint64(nonceCounter), common.HexToAddress(agreement.Account), big.NewInt(25000000), big.NewInt(21000), gasPrice, nil)
+		signed, err := types.SignTx(tx, signer, privKey)
+		if err != nil {
+			log.Fatalf("Failed to sign transaction: %v", err)
+		}
+		err = conn.SendTransaction(context.Background(), signed)
+		if err != nil {
+			log.Fatalf("Failed to send transaction: %v", err)
+		}
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("ok"))
 	})
