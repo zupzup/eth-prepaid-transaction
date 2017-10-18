@@ -2,6 +2,24 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/aristanetworks/goarista"
+  packages = ["monotime"]
+  revision = "555b95a71e7357b9b1f067a3ef62f01560c02f5b"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/btcsuite/btcd"
+  packages = ["btcec"]
+  revision = "fb43a179cb37713cb19f93c9b62d436385edbc87"
+
+[[projects]]
+  name = "github.com/ethereum/go-ethereum"
+  packages = [".","accounts","accounts/abi","accounts/abi/bind","accounts/keystore","common","common/hexutil","common/math","common/mclock","core/types","crypto","crypto/randentropy","crypto/secp256k1","crypto/sha3","ethclient","event","log","params","rlp","rpc","trie"]
+  revision = "1db4ecdc0b9e828ff65777fb466fc7c1d04e0de9"
+  version = "v1.7.2"
+
+[[projects]]
   name = "github.com/go-chi/chi"
   packages = [".","middleware","render"]
   revision = "967844826e58cf31213a7dfb82455d242ad85101"
@@ -14,14 +32,86 @@
   version = "v1.0.0"
 
 [[projects]]
+  name = "github.com/go-stack/stack"
+  packages = ["."]
+  revision = "817915b46b97fd7bb80e8ab6b69f01a53ac3eebf"
+  version = "v1.6.0"
+
+[[projects]]
+  name = "github.com/pborman/uuid"
+  packages = ["."]
+  revision = "e790cca94e6cc75c7064b1332e63811d4aae1a53"
+  version = "v1.1"
+
+[[projects]]
   name = "github.com/pressly/chi"
   packages = ["."]
   revision = "04ec7fc4179604b2390947258f9143eaae23b596"
   version = "v3.2.1"
 
+[[projects]]
+  branch = "master"
+  name = "github.com/rcrowley/go-metrics"
+  packages = ["."]
+  revision = "1f30fe9094a513ce4c700b9a54458bbb0c96996c"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/rjeczalik/notify"
+  packages = ["."]
+  revision = "1aa3b9de8d8410413787ea2573433b6fed5f3685"
+
+[[projects]]
+  name = "github.com/rs/cors"
+  packages = ["."]
+  revision = "7af7a1e09ba336d2ea14b1ce73bf693c6837dbf6"
+  version = "v1.2"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+  packages = ["pbkdf2","scrypt"]
+  revision = "ed5229da99e3a6df35c756cd64b6982d19505d86"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/net"
+  packages = ["websocket"]
+  revision = "1087133bc4af3073e18add999345c6ae75918503"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  revision = "8dbc5d05d6edcc104950cc299a1ce6641235bc86"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/tools"
+  packages = ["go/ast/astutil","imports"]
+  revision = "9bd2f442688b66c5289262d70f537c2ecf81d7de"
+
+[[projects]]
+  name = "gopkg.in/fatih/set.v0"
+  packages = ["."]
+  revision = "57907de300222151a123d29255ed17f5ed43fad3"
+  version = "v0.1.0"
+
+[[projects]]
+  branch = "v2"
+  name = "gopkg.in/karalabe/cookiejar.v2"
+  packages = ["collections/prque"]
+  revision = "8dcd6a7f4951f6ff3ee9cbb919a06d8925822e57"
+
+[[projects]]
+  branch = "v2"
+  name = "gopkg.in/natefinch/npipe.v2"
+  packages = ["."]
+  revision = "c1b8fa8bdccecb0b8db834ee0b92fdbcfa606dd6"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c619407b2dd36012efe865bb8f0de5ae4f9ea48ca0063f7fb659a6f2804f28cd"
+  inputs-digest = "b91cdbe6d3405b20d823497fb68096b810632405190aaffaf1b8869d1695d755"
   solver-name = "gps-cdcl"
   solver-version = 1

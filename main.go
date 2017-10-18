@@ -80,13 +80,13 @@ func main() {
 
 func createAgreementHandler(contract *Signer, auth, clientAuth *bind.TransactOpts, conn *ethclient.Client, privKey *ecdsa.PrivateKey) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Create Agreement
 		agreement := &Agreement{}
 		if err := render.Bind(r, agreement); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Invalid Request, Account and Agreement need to be set"))
 			return
 		}
-		fmt.Println(agreement)
 		if agreement.Account == "" || agreement.Agreement == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Account and Agreement need to be set"))
@@ -96,7 +96,7 @@ func createAgreementHandler(contract *Signer, auth, clientAuth *bind.TransactOpt
 		_, err := contract.CreateAgreement(&bind.TransactOpts{
 			From:     auth.From,
 			Signer:   auth.Signer,
-			GasLimit: big.NewInt(2381623),
+			GasLimit: big.NewInt(200000),
 			Value:    big.NewInt(0),
 			Nonce:    big.NewInt(nonceCounter),
 		}, agreement.Agreement, common.HexToAddress(agreement.Account))
@@ -104,13 +104,15 @@ func createAgreementHandler(contract *Signer, auth, clientAuth *bind.TransactOpt
 			log.Fatalf("Failed to create agreement: %v", err)
 		}
 		fmt.Println("Agreement created: ", agreement.Agreement)
+
+		// Send enough Gas to the Client so they can sign
 		nonceCounter = nonceCounter + 1
 		gasPrice, err := conn.SuggestGasPrice(context.Background())
 		if err != nil {
 			log.Fatalf("Failed to get gas price: %v", err)
 		}
 		signer := types.HomesteadSigner{}
-		tx := types.NewTransaction(uint64(nonceCounter), common.HexToAddress(agreement.Account), big.NewInt(25000000), big.NewInt(21000), gasPrice, nil)
+		tx := types.NewTransaction(uint64(nonceCounter), common.HexToAddress(agreement.Account), big.NewInt(100000), big.NewInt(21000), gasPrice, nil)
 		signed, err := types.SignTx(tx, signer, privKey)
 		if err != nil {
 			log.Fatalf("Failed to sign transaction: %v", err)
@@ -119,6 +121,7 @@ func createAgreementHandler(contract *Signer, auth, clientAuth *bind.TransactOpt
 		if err != nil {
 			log.Fatalf("Failed to send transaction: %v", err)
 		}
+		fmt.Println("Transaction Fee sent to client!")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("ok"))
 	})

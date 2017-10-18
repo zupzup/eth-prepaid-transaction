@@ -47,7 +47,16 @@ var host = "http://localhost:8080";
 
     var signbutton = document.getElementById("signbutton");
     signbutton.addEventListener("click", function(event) {
-        console.log("clicked sign");
+        var tx = {
+            from: currentAccount,
+            value: 0,
+            gas: 100000
+        }
+        instance.signAgreement.sendTransaction(tx, function(err, res) {
+            if (err) {
+                return alert(err)
+            }
+        })
     });
 
     var agreementButton = document.getElementById("agreementButton");
