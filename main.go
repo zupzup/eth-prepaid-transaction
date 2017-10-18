@@ -36,6 +36,7 @@ func (a *Agreement) Bind(r *http.Request) error {
 var nonceCounter int64
 
 func main() {
+	// setup
 	privKey, err := crypto.HexToECDSA(key)
 	if err != nil {
 		log.Fatalf("Failed to convert private key: %v", err)
@@ -55,12 +56,14 @@ func main() {
 	}
 	auth.Nonce = big.NewInt(nonceCounter)
 
+	// contract deployment
 	addr, _, contract, err := DeploySigner(auth, conn)
 	if err != nil {
 		log.Fatalf("Failed to deploy contract: %v", err)
 	}
 	fmt.Println("Contract Deployed to: ", addr.String())
 
+	// webserver setup
 	r := chi.NewRouter()
 	corsOption := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
@@ -78,6 +81,7 @@ func main() {
 	fmt.Println("tada!")
 }
 
+// createAgreementHandler adds the provided agreement, if it is valid, to the contract and sends the client a transaction fee, so they can sign it from their side
 func createAgreementHandler(contract *Signer, auth, clientAuth *bind.TransactOpts, conn *ethclient.Client, privKey *ecdsa.PrivateKey) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Create Agreement
