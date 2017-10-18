@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/render"
 	"github.com/go-chi/cors"
 	"github.com/pressly/chi"
 	"log"
@@ -28,6 +30,8 @@ func (a *Agreement) Bind(r *http.Request) error {
 	return nil
 }
 
+var nonceCounter int64
+
 func main() {
 	privKey, err := crypto.HexToECDSA(key)
 	if err != nil {
@@ -46,26 +50,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create Transactor: %v", err)
 	}
-	auth.Nonce = big.NewInt(0)
+	auth.Nonce = big.NewInt(nonceCounter)
 
 	addr, _, contract, err := DeploySigner(auth, conn)
 	if err != nil {
 		log.Fatalf("Failed to deploy contract: %v", err)
 	}
 	fmt.Println("Contract Deployed to: ", addr.String())
-
-	createTrans, err := contract.CreateAgreement(&bind.TransactOpts{
-		From:     auth.From,
-		Signer:   auth.Signer,
-		GasLimit: big.NewInt(2381623),
-		Value:    big.NewInt(0),
-		Nonce:    big.NewInt(1),
-	}, "test project", clientAuth.From)
-
-	if err != nil {
-		log.Fatalf("Failed to create agreement: %v", err)
-	}
-	fmt.Println("Agreement created: ", createTrans.String())
 
 	r := chi.NewRouter()
 	corsOption := cors.New(cors.Options{
@@ -77,27 +68,40 @@ func main() {
 	})
 	r.Use(corsOption.Handler)
 	r.Use(middleware.Logger)
-	r.Post("/agreement", createAgreementHandler())
+	r.Post("/agreement", createAgreementHandler(contract, auth, clientAuth))
 
 	log.Println("Server started on localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
 	fmt.Println("tada!")
 }
 
-func createAgreementHandler() http.HandlerFunc {
+func createAgreementHandler(contract *Signer, auth, clientAuth *bind.TransactOpts) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		agreement := &Agreement{}
-		if err := agreement.Bind(r); err != nil {
+		if err := render.Bind(r, agreement); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Invalid Request, Account and Agreement need to be set"))
 			return
 		}
+		fmt.Println(agreement)
 		if agreement.Account == "" || agreement.Agreement == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Account and Agreement need to be set"))
 			return
 		}
-		fmt.Println("save to contract")
+		nonceCounter = nonceCounter + 1
+		_, err := contract.CreateAgreement(&bind.TransactOpts{
+			From:     auth.From,
+			Signer:   auth.Signer,
+			GasLimit: big.NewInt(2381623),
+			Value:    big.NewInt(0),
+			Nonce:    big.NewInt(nonceCounter),
+		}, agreement.Agreement, common.HexToAddress(agreement.Account))
+		if err != nil {
+			log.Fatalf("Failed to create agreement: %v", err)
+		}
+		fmt.Println("Agreement created: ", agreement.Agreement)
+		// TODO: send enough wei to address
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("ok"))
 	})
