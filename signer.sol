@@ -28,9 +28,8 @@ contract Signer {
         return true;
     }
 
-    function getAgreement() constant public returns(string stringToAgreeOn, bool signed) {
-        var agreement = agreements[msg.sender];
-        require(agreement.initialized == true);
-        return (agreement.stringToAgreeOn, agreement.signed);
+    function getAgreement(address addr) public constant returns(string stringToAgreeOn, bool signed, bool initialized) {
+        var agreement = agreements[addr];
+        return (agreement.stringToAgreeOn, agreement.signed, agreement.initialized);
     }
 }

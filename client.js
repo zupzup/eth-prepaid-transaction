@@ -1,4 +1,4 @@
-var abi = "[{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"getAgreement\",\"outputs\":[{\"name\":\"stringToAgreeOn\",\"type\":\"string\"},{\"name\":\"signed\",\"type\":\"bool\"}],\"payable\":false,\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_stringToAgreeOn\",\"type\":\"string\"},{\"name\":\"customer\",\"type\":\"address\"}],\"name\":\"createAgreement\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":true,\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"signAgreement\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":true,\"type\":\"function\"}]";
+var abi = "[{\"constant\":true,\"inputs\":[{\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"getAgreement\",\"outputs\":[{\"name\":\"stringToAgreeOn\",\"type\":\"string\"},{\"name\":\"signed\",\"type\":\"bool\"},{\"name\":\"initialized\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"_stringToAgreeOn\",\"type\":\"string\"},{\"name\":\"customer\",\"type\":\"address\"}],\"name\":\"createAgreement\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"signAgreement\",\"outputs\":[{\"name\":\"success\",\"type\":\"bool\"}],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"}]";
 
 (function() {
     var web3 = new Web3();
@@ -12,11 +12,11 @@ var abi = "[{\"constant\":true,\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"
     var instance = Signer.at("0x34c349e99ccc2f258cbc663ca508c805194cdf10")
     console.log(instance)
 
-    instance.owner(function(err, results) {
+    instance.getAgreement(currentAccount, function(err, results) {
         if (err) {
             console.log(err, "error happened")
         } else {
-            console.log(results, "results happened")
+            console.log("RESULTS: ", results)
         }
     });
 

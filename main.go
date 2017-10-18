@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/go-chi/chi/middleware"
@@ -15,6 +14,8 @@ import (
 )
 
 var key = "b4087f10eacc3a032a2d550c02ae7a3ff88bc62eb0d9f6c02c9d5ef4d1562862"
+
+var clientKey = "d2a99b289915eb11ea50a51247e1cef2c4583ae1d9699a3bb0154c2792bda339"
 
 // Agreement is an agreement
 type Agreement struct {
@@ -32,16 +33,20 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to convert private key: %v", err)
 	}
+	clientPrivKey, err := crypto.HexToECDSA(clientKey)
+	if err != nil {
+		log.Fatalf("Failed to convert client private key: %v", err)
+	}
 	conn, err := ethclient.Dial("http://localhost:8545")
 	if err != nil {
 		log.Fatalf("Failed to connect to the Ethereum client: %v", err)
 	}
 	auth := bind.NewKeyedTransactor(privKey)
+	clientAuth := bind.NewKeyedTransactor(clientPrivKey)
 	if err != nil {
 		log.Fatalf("Failed to create Transactor: %v", err)
 	}
-	fmt.Println(auth.From.String(), auth.Nonce.String())
-	auth.Nonce = big.NewInt(4)
+	auth.Nonce = big.NewInt(0)
 
 	addr, _, contract, err := DeploySigner(auth, conn)
 	if err != nil {
@@ -54,8 +59,9 @@ func main() {
 		Signer:   auth.Signer,
 		GasLimit: big.NewInt(2381623),
 		Value:    big.NewInt(0),
-		Nonce:    big.NewInt(5),
-	}, "test project", common.HexToAddress("446b69e95817842b6c27de11cdcba498b6a35c1c"))
+		Nonce:    big.NewInt(1),
+	}, "test project", clientAuth.From)
+
 	if err != nil {
 		log.Fatalf("Failed to create agreement: %v", err)
 	}
