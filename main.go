@@ -20,8 +20,6 @@ import (
 
 var key = "b4087f10eacc3a032a2d550c02ae7a3ff88bc62eb0d9f6c02c9d5ef4d1562862"
 
-var clientKey = "d2a99b289915eb11ea50a51247e1cef2c4583ae1d9699a3bb0154c2792bda339"
-
 // Agreement is an agreement
 type Agreement struct {
 	Account   string `json:"account"`
@@ -41,16 +39,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to convert private key: %v", err)
 	}
-	clientPrivKey, err := crypto.HexToECDSA(clientKey)
-	if err != nil {
-		log.Fatalf("Failed to convert client private key: %v", err)
-	}
 	conn, err := ethclient.Dial("http://localhost:8545")
 	if err != nil {
 		log.Fatalf("Failed to connect to the Ethereum client: %v", err)
 	}
 	auth := bind.NewKeyedTransactor(privKey)
-	clientAuth := bind.NewKeyedTransactor(clientPrivKey)
 	if err != nil {
 		log.Fatalf("Failed to create Transactor: %v", err)
 	}
@@ -74,7 +67,7 @@ func main() {
 	})
 	r.Use(corsOption.Handler)
 	r.Use(middleware.Logger)
-	r.Post("/agreement", createAgreementHandler(contract, auth, clientAuth, conn, privKey))
+	r.Post("/agreement", createAgreementHandler(contract, auth, conn, privKey))
 
 	log.Println("Server started on localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
@@ -82,7 +75,7 @@ func main() {
 }
 
 // createAgreementHandler adds the provided agreement, if it is valid, to the contract and sends the client a transaction fee, so they can sign it from their side
-func createAgreementHandler(contract *Signer, auth, clientAuth *bind.TransactOpts, conn *ethclient.Client, privKey *ecdsa.PrivateKey) http.HandlerFunc {
+func createAgreementHandler(contract *Signer, auth *bind.TransactOpts, conn *ethclient.Client, privKey *ecdsa.PrivateKey) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Create Agreement
 		agreement := &Agreement{}
