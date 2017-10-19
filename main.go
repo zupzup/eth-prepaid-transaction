@@ -71,7 +71,6 @@ func main() {
 
 	log.Println("Server started on localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
-	fmt.Println("tada!")
 }
 
 // createAgreementHandler adds the provided agreement, if it is valid, to the contract and sends the client a transaction fee, so they can sign it from their side
